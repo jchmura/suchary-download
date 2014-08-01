@@ -1,0 +1,82 @@
+#!/usr/bin/env python2
+from __future__ import print_function
+from datetime import datetime, timedelta
+from urllib2 import URLError
+import os
+import sys
+import json
+import time
+
+import facebook
+from functions import load_saved, convert_to_date_time, create_suchar_to_save, output_json
+
+try:
+    from private_settings import FACEBOOK_TOKEN
+except ImportError:
+    FACEBOOK_TOKEN = ''
+
+
+graph = facebook.GraphAPI(FACEBOOK_TOKEN)
+
+DATE_LIMIT = datetime.now() - timedelta(days=3)
+MAX_OVER_DATE = 10
+MIN_VOTES = 150
+DATA_FILE = os.environ['HOME'] + '/devel/django/suchary/data/sucharnia.json'
+
+accepted, ids = load_saved(DATA_FILE)
+feed = graph.get_object('495903230481274/feed', limit=100)
+
+start = time.time()
+# requests = 1
+over_date = 0
+try:
+    while True:
+        for entry in feed['data']:
+            if 'message' in entry and 'picture' not in entry and 'link' not in entry:
+                date = convert_to_date_time(entry['created_time'])
+                if date < DATE_LIMIT:
+                    if over_date > MAX_OVER_DATE:
+                        over_date = 0
+                        break
+                    else:
+                        over_date += 1
+                        continue
+                else:
+                    over_date = 0
+
+                try:
+                    time.sleep(1)
+                    summary = graph.get_object(entry['id'], fields='likes.limit(1).summary(1)')
+                except URLError:
+                    print("ERROR: couldn't get object id: " + entry['id'], end='\n', file=sys.stderr)
+                    continue
+                except facebook.GraphAPIError as e:
+                    print("ERROR: %s, id: " % e + entry['id'], end='\n', file=sys.stderr)
+                    continue
+
+                if 'likes' in summary:
+                    votes = summary['likes']['summary']['total_count']
+                    if votes >= MIN_VOTES:
+                        new = create_suchar_to_save(entry['id'], date, votes, entry['message'])
+                        if entry['id'] not in ids:
+                            accepted.append(new)
+                            ids.add(entry['id'])
+                            print(new['id'], new['date'], new['votes'])
+                        else:
+                            old = (item for item in accepted if item['id'] == new['id']).next()
+                            accepted[accepted.index(old)] = new
+
+        else:
+            next = feed['paging']['next']
+            try:
+                time.sleep(3)
+                print("Next page")
+                feed = graph.raw_request(next)
+                continue
+            except facebook.GraphAPIError, e:
+                print("ERROR while requesting new page: %s" % e, end='\n', file=sys.stderr)
+        break
+except Exception, e:
+    print(e, file=sys.stderr)
+finally:
+    json.dump(accepted, open(DATA_FILE, 'w'), default=output_json, indent=4)
