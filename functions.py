@@ -40,7 +40,10 @@ def input_json(obj):
 
 def load_saved(file):
     if isfile(file):
-        saved = json.load(open(file, 'r'), object_hook=input_json)
+        try:
+            saved = json.load(open(file, 'r'), object_hook=input_json)
+        except ValueError:
+            saved = []
     else:
         saved = []
     ids = set()
