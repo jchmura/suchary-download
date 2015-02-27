@@ -39,7 +39,7 @@ while True:
                 accepted.append(new)
                 ids.add(new['id'])
             else:
-                old = (item for item in accepted if item['id'] == suchar['id']).next()
+                old = next(item for item in accepted if item['id'] == suchar['id'])
                 accepted[accepted.index(old)] = new
     else:
         continue

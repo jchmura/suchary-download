@@ -48,11 +48,11 @@ while True:
                         ids.add(entry['id'])
                         print(new['id'], new['date'], new['votes'])
                     else:
-                        old = (item for item in accepted if item['id'] == new['id']).next()
+                        old = next(item for item in accepted if item['id'] == new['id'])
                         accepted[accepted.index(old)] = new
 
     else:
-        next = feed['paging']['next']
+        next_page = feed['paging']['next']
         elapsedTime = time.clock() - start
         if elapsedTime > 60:
             if requests / elapsedTime > 0.5:
@@ -63,7 +63,7 @@ while True:
                 print("Resuming")
         try:
             requests += 1
-            feed = r.get(next).json()
+            feed = r.get(next_page).json()
             continue
         except RequestException as e:
             print("ERROR while requesting new page: %s" % e, end='\n', file=sys.stderr)

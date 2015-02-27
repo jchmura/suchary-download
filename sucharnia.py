@@ -58,15 +58,15 @@ try:
                             ids.add(entry['id'])
                             print(new['id'], new['date'], new['votes'])
                         else:
-                            old = (item for item in accepted if item['id'] == new['id']).next()
+                            old = next(item for item in accepted if item['id'] == new['id'])
                             accepted[accepted.index(old)] = new
 
         else:
-            next = feed['paging']['next']
+            next_page = feed['paging']['next']
             try:
                 time.sleep(3)
                 print("Next page")
-                feed = r.get(next).json()
+                feed = r.get(next_page).json()
                 continue
             except RequestException as e:
                 print("ERROR while requesting new page: %s" % e, file=sys.stderr)
