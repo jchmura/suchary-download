@@ -1,0 +1,12 @@
+#!/bin/bash 
+
+LOG=$HOME/logs/sucharnia.log
+DJANGODIR=$HOME/django
+
+source $HOME/bin/activate
+
+echo " " >> ${LOG}
+date >> ${LOG}
+$HOME/download/sucharnia.py &>> ${LOG}
+sleep 5
+python ${DJANGODIR}/manage.py loadnew sucharnia &>> ${LOG}

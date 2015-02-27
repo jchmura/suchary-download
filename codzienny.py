@@ -1,12 +1,11 @@
-#!/usr/bin/env python2
-from __future__ import print_function
 from datetime import datetime, timedelta
-from urllib2 import URLError
 import os
 import sys
 import json
 import time
 import facebook
+from requests import RequestException
+import requests as r
 from functions import load_saved, convert_to_date_time, create_suchar_to_save, output_json
 try:
     from private_settings import FACEBOOK_TOKEN
@@ -18,7 +17,7 @@ graph = facebook.GraphAPI(FACEBOOK_TOKEN)
 
 dateLimit = datetime.now() - timedelta(days=3)
 minVotes = 1000
-dataFile = os.environ['HOME'] + '/devel/django/suchary/data/codzienny.json'
+dataFile = os.environ['HOME'] + '/django/data/codzienny.json'
 
 accepted, ids = load_saved(dataFile)
 feed = graph.get_object('212969625440456/feed', limit=100)
@@ -36,11 +35,8 @@ while True:
             try:
                 requests += 1
                 summary = graph.get_object(entry['id'], fields='likes.limit(1).summary(1)')
-            except URLError:
+            except RequestException:
                 print("ERROR: couldn't get object id: " + entry['id'], end='\n', file=sys.stderr)
-                continue
-            except facebook.GraphAPIError as e:
-                print("ERROR: %s, id: " % e + entry['id'], end='\n', file=sys.stderr)
                 continue
 
             if 'likes' in summary:
@@ -67,9 +63,9 @@ while True:
                 print("Resuming")
         try:
             requests += 1
-            feed = graph.raw_request(next)
+            feed = r.get(next).json()
             continue
-        except facebook.GraphAPIError, e:
+        except RequestException as e:
             print("ERROR while requesting new page: %s" % e, end='\n', file=sys.stderr)
     break
 

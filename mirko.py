@@ -1,5 +1,3 @@
-#!/bin/env python2
-from __future__ import print_function
 from datetime import datetime, timedelta
 import os
 import wykop
@@ -20,7 +18,7 @@ api = wykop.WykopAPI(WYKOP['APP_KEY'], WYKOP['SECRET_KEY'])
 
 dateLimit = datetime.now() - timedelta(days=5)
 minVotes = 100
-dataFile = os.environ['HOME'] + '/devel/django/suchary/data/wykop.json'
+dataFile = os.environ['HOME'] + '/django/data/wykop.json'
 
 accepted, ids = load_saved(dataFile)
 page = -1

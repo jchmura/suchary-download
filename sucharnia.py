@@ -1,13 +1,12 @@
-#!/usr/bin/env python2
-from __future__ import print_function
 from datetime import datetime, timedelta
-from urllib2 import URLError
 import os
 import sys
 import json
 import time
 
 import facebook
+from requests import RequestException
+import requests as r
 from functions import load_saved, convert_to_date_time, create_suchar_to_save, output_json
 
 try:
@@ -21,13 +20,12 @@ graph = facebook.GraphAPI(FACEBOOK_TOKEN)
 DATE_LIMIT = datetime.now() - timedelta(days=3)
 MAX_OVER_DATE = 10
 MIN_VOTES = 150
-DATA_FILE = os.environ['HOME'] + '/devel/django/suchary/data/sucharnia.json'
+DATA_FILE = os.environ['HOME'] + '/django/data/sucharnia.json'
 
 accepted, ids = load_saved(DATA_FILE)
 feed = graph.get_object('495903230481274/feed', limit=100)
 
 start = time.time()
-# requests = 1
 over_date = 0
 try:
     while True:
@@ -47,11 +45,8 @@ try:
                 try:
                     time.sleep(1)
                     summary = graph.get_object(entry['id'], fields='likes.limit(1).summary(1)')
-                except URLError:
-                    print("ERROR: couldn't get object id: " + entry['id'], end='\n', file=sys.stderr)
-                    continue
-                except facebook.GraphAPIError as e:
-                    print("ERROR: %s, id: " % e + entry['id'], end='\n', file=sys.stderr)
+                except RequestException:
+                    print("ERROR: couldn't get object id: " + entry['id'], file=sys.stderr)
                     continue
 
                 if 'likes' in summary:
@@ -71,12 +66,12 @@ try:
             try:
                 time.sleep(3)
                 print("Next page")
-                feed = graph.raw_request(next)
+                feed = r.get(next).json()
                 continue
-            except facebook.GraphAPIError, e:
-                print("ERROR while requesting new page: %s" % e, end='\n', file=sys.stderr)
+            except RequestException as e:
+                print("ERROR while requesting new page: %s" % e, file=sys.stderr)
         break
-except Exception, e:
+except Exception as e:
     print(e, file=sys.stderr)
 finally:
     json.dump(accepted, open(DATA_FILE, 'w'), default=output_json, indent=4)
