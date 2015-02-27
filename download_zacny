@@ -7,6 +7,6 @@ source $HOME/bin/activate
 
 echo " " >> ${LOG}
 date >> ${LOG}
-$HOME/download/zacny.py &>> ${LOG}
+python $HOME/download/zacny.py &>> ${LOG}
 sleep 5
 python ${DJANGODIR}/manage.py loadnew zacny &>> ${LOG}

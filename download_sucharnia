@@ -7,6 +7,6 @@ source $HOME/bin/activate
 
 echo " " >> ${LOG}
 date >> ${LOG}
-$HOME/download/sucharnia.py &>> ${LOG}
+python $HOME/download/sucharnia.py &>> ${LOG}
 sleep 5
 python ${DJANGODIR}/manage.py loadnew sucharnia &>> ${LOG}

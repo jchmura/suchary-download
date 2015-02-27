@@ -7,6 +7,6 @@ source $HOME/bin/activate
 
 echo " " >> ${LOG}
 date >> ${LOG}
-$HOME/download/mirko.py &>> ${LOG}
+python $HOME/download/mirko.py &>> ${LOG}
 sleep 5
 python ${DJANGODIR}/manage.py loadnew wykop &>> ${LOG}

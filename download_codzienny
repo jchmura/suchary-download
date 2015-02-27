@@ -7,6 +7,6 @@ source $HOME/bin/activate
 
 echo " " >> ${LOG}
 date >> ${LOG}
-$HOME/download/codzienny.py &>> ${LOG}
+python $HOME/download/codzienny.py &>> ${LOG}
 sleep 5
 python ${DJANGODIR}/manage.py loadnew codzienny &>> ${LOG}
