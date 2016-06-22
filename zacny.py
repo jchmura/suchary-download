@@ -14,6 +14,7 @@ except ImportError:
 
 
 graph = facebook.GraphAPI(FACEBOOK_TOKEN)
+graph.base_uri = 'https://graph.facebook.com/v2.6/'
 
 dateLimit = datetime.now() - timedelta(days=3)
 minVotes = 1000
