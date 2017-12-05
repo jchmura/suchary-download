@@ -24,7 +24,7 @@ MIN_VOTES = 150
 DATA_FILE = os.environ['HOME'] + '/django/data/sucharnia.json'
 
 accepted, ids = load_saved(DATA_FILE)
-feed = graph.get_object('495903230481274/feed', limit=100)
+feed = graph.get_object('495903230481274/feed', limit=100, fields='created_time,picture,id,link')
 
 start = time.time()
 over_date = 0
@@ -63,6 +63,8 @@ try:
                             accepted[accepted.index(old)] = new
 
         else:
+            if 'paging' not in feed:
+                break
             next_page = feed['paging']['next']
             try:
                 time.sleep(3)

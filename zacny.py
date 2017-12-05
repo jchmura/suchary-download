@@ -21,7 +21,7 @@ minVotes = 1000
 dataFile = os.environ['HOME'] + '/django/data/zacny.json'
 
 accepted, ids = load_saved(dataFile)
-feed = graph.get_object('262364993797732/feed', limit=100)
+feed = graph.get_object('262364993797732/feed', limit=100, fields='created_time,picture,id,link')
 
 start = time.clock()
 requests = 1
@@ -53,6 +53,8 @@ while True:
                         accepted[accepted.index(old)] = new
 
     else:
+        if 'paging' not in feed:
+            break
         next_page = feed['paging']['next']
         elapsedTime = time.clock() - start
         if elapsedTime > 60:
