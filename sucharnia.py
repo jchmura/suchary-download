@@ -16,7 +16,7 @@ except ImportError:
 
 
 graph = facebook.GraphAPI(FACEBOOK_TOKEN)
-graph.base_uri = 'https://graph.facebook.com/v2.6/'
+graph.base_uri = 'https://graph.facebook.com/v3.2/'
 
 DATE_LIMIT = datetime.now() - timedelta(days=3)
 MAX_OVER_DATE = 10
